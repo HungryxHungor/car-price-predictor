@@ -2,7 +2,7 @@
 from pathlib import Path
 import logging
 import math
-
+from .config import ARTIFACT_PATH, REQUIRED_KEYS
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -12,10 +12,6 @@ from .schemas import CarFeatures, PredictionResponse
 
 logger = logging.getLogger(__name__)  
 
-ARTIFACT_PATH = (
-    Path(__file__).resolve().parents[2] / "models" / "model_artifacts.joblib"
-)
-REQUIRED_KEYS = {"model"}
 
 def load_artifacts(path: Path = ARTIFACT_PATH) -> dict:
     if not path.is_file():
@@ -37,20 +33,10 @@ def load_artifacts(path: Path = ARTIFACT_PATH) -> dict:
     logger.info("Artifacts loaded. Keys: %s", list(artifacts.keys()))
     return artifacts
 
-required_keys = {
-    "model",
-    "model_mapping",
-    "global_mean_price",
-    "feature_columns",
-    "onehot_columns",
-    "valid_makes",
-    "valid_transmissions",
-    "valid_fuel_types",
-}
 
 artifacts = load_artifacts()
 
-missing_keys = required_keys - artifacts.keys()
+missing_keys = REQUIRED_KEYS - artifacts.keys()
 if missing_keys:
     raise RuntimeError(f"Missing artifact keys: {sorted(missing_keys)}")
 
